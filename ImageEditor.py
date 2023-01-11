@@ -23,17 +23,18 @@ class ImageEditor:
         panel.image = img
         panel.place(x=243, y=262.5, anchor='center')
 
-        font_tuple2 = ("Trajan Pro", 10)
+        font_tuple2 = ("Trajan Pro", 15)
 
         # Editor panel setup
         watermark_text = Label(editor, text="Choose a Watermark", bg='black', fg='white', font=font_tuple2)
-        watermark_text.pack(pady=(5, 0))
+        watermark_text.pack(pady=(8, 8))
 
-        watermark_upload = Button(editor, text="Upload Here")
-        watermark_upload.pack()
+        wm_button_font = ('Trajan Pro', 12)
+        watermark_upload = Button(editor, text="Upload Here", font=wm_button_font)
+        watermark_upload.pack(pady=(0, 8))
 
         size = Scale(editor, from_=0, to=100, orient=HORIZONTAL, label='Size', relief=FLAT, borderwidth=0, highlightbackground='black')
-        size.pack()
+        size.pack(ipadx=20, pady=(0, 8))
 
         opacity = Scale(editor, from_=0, to=100, orient=HORIZONTAL, label='Opacity', relief=FLAT, borderwidth=0, highlightbackground='black')
-        opacity.pack()
+        opacity.pack(ipadx=20)
