@@ -3,16 +3,19 @@ from tkinter import filedialog as fd
 from PIL import ImageTk, Image
 
 
-def select_img():
-    filetypes = (
-        ('JPEG', '*.jpeg'),
-        ('PNG', '*.png'),
-        ('JPG', '*.jpg')
-    )
-    filename = fd.askopenfilename(
-        title='Upload an Image',
-        initialdir='/',
-        filetypes=filetypes
-    )
+class ImageEditor:
+    def __init__(self):
+        self.target_pic_filename = None
 
-    return filename
+    def select_img(self):
+        filetypes = (
+            ('JPEG', '*.jpeg'),
+            ('PNG', '*.png'),
+            ('JPG', '*.jpg')
+        )
+        filename = fd.askopenfilename(
+            title='Upload an Image',
+            initialdir='/',
+            filetypes=filetypes
+        )
+        self.target_pic_filename = filename
