@@ -29,5 +29,11 @@ class ImageEditor:
         editor_window.geometry("1080x540")
         editor_window.configure(bg="black")
 
+        preview_panel = Frame(editor_window, bg="white")
+        preview_panel.pack(side=LEFT)
 
+        editor_panel = Frame(editor_window, bg="blue")
+        editor_panel.pack(side=RIGHT)
 
+        test_label = Label(preview_panel, text="LOL")
+        test_label.pack()
