@@ -1,7 +1,8 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from ImageEditor import ImageEditor
-
+import pyglet
+pyglet.font.add_file("assets/Blinker/Blinker-Bold.ttf")
 
 # Configure basic tkinter window
 front_window = Tk()
@@ -22,8 +23,7 @@ test = ImageTk.PhotoImage(resized_image)
 logo_label = Label(front_window, image=test, borderwidth=0, highlightthickness=0)
 logo_label.pack()
 
-button_font = ("TMS Serif", 12)
-submit_button = Button(front_window, text="Select an Image", font=button_font, command=lambda: editor.select_img(state="init"))
+submit_button = Button(front_window, text="Select an Image", font=("Blinker", 12, "bold"), command=lambda: editor.select_img(state="init"))
 submit_button.pack()
 
 front_window.mainloop()
