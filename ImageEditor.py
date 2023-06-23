@@ -3,7 +3,7 @@ from tkinter import filedialog as fd, colorchooser
 from PIL import ImageTk, Image
 import pyglet
 
-pyglet.font.add_file("assets/Blinker/Blinker-Regular.ttf")
+pyglet.font.add_file(r"assets/Blinker/Blinker-Regular.ttf")
 
 
 class ImageEditor:
@@ -35,6 +35,8 @@ class ImageEditor:
         editor_window.iconphoto(False, icon_image)
         editor_window.title("Liquid Mark")
 
+        editor_window.resizable(False, False)
+
         preview_panel = Frame(editor_window, bg="#303030", width="780", height="540", relief="sunken", borderwidth=3)
         preview_panel.grid(row=0, column=0, sticky="nsew")
 
@@ -49,9 +51,9 @@ class ImageEditor:
         max_height = 480
         width_ratio = max_height / im.height
         new_width = int(im.width * width_ratio)
-        resized_image = im.resize((new_width, max_height))
+        self.resized_image = im.resize((new_width, max_height))
 
-        photo = ImageTk.PhotoImage(resized_image)
+        photo = ImageTk.PhotoImage(self.resized_image)
 
         im_label.image = photo  # Store a reference to the PhotoImage object
         im_label.configure(image=photo)
@@ -101,22 +103,26 @@ class ImageEditor:
         color_button.grid(row=5, column=0, columnspan=2)
 
         opacity_label = Label(editor_panel, text="Opacity:", font=("Blinker", 12), background="black",
-                               foreground="white")
+                              foreground="white")
         opacity_label.grid(row=6, column=0, sticky="nsew", pady=30, padx=3)
 
         opacity_scale = Scale(editor_panel, from_=0, to=100, orient=HORIZONTAL, background="black", foreground="white",
-                               relief="flat", borderwidth=0)
+                              relief="flat", borderwidth=0)
         opacity_scale.set(100)
         opacity_scale.grid(row=6, column=1, sticky="w", ipadx=25)
 
-        save_button = Button(editor_panel, text="Save Image")
-        save_button.grid(row=8, column=0)
-
-
-        # new_test = Label(editor_panel, text="JOJO")
-        # new_test.pack()
+        save_button = Button(editor_panel, text="Save Image", width=30, font=("Blinker", 10, "bold"),
+                             command=self.save_image)
+        save_button.grid(row=8, column=0, columnspan=2)
 
     def choose_color(self):
         # variable to store hexadecimal code of color
         color_code = colorchooser.askcolor(title="Choose color")
         print(color_code)
+
+    def save_image(self):
+        filetypes = (
+            ('Custom Image', '*.jpg *.jpeg *.png'),
+        )
+        save_path = fd.asksaveasfilename(defaultextension='.png', filetypes=filetypes)
+        self.resized_image.save(fp=save_path, format="png")
