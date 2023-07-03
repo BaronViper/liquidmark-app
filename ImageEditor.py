@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog as fd, colorchooser
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageFont, ImageDraw
 import pyglet
 
 pyglet.font.add_file(r"assets/Blinker/Blinker-Regular.ttf")
@@ -28,37 +28,40 @@ class ImageEditor:
     def set_editor_window(self):
         self.init_screen.destroy()
 
-        editor_window = Tk()
-        editor_window.geometry("1080x540")
-        editor_window.configure(bg="black")
+        self.editor_window = Tk()
+        self.editor_window.geometry("1080x540")
+        self.editor_window.configure(bg="black")
         icon_image = PhotoImage(file="assets/logo-black.png")
-        editor_window.iconphoto(False, icon_image)
-        editor_window.title("Liquid Mark")
+        self.editor_window.iconphoto(False, icon_image)
+        self.editor_window.title("Liquid Mark")
 
-        editor_window.resizable(False, False)
+        self.editor_window.resizable(False, False)
 
-        preview_panel = Frame(editor_window, bg="#303030", width="780", height="540", relief="sunken", borderwidth=3)
+        preview_panel = Frame(self.editor_window, bg="#303030", width="780", height="540", relief="sunken",
+                              borderwidth=3)
         preview_panel.grid(row=0, column=0, sticky="nsew")
 
-        im_label = Label(preview_panel, borderwidth=0, justify='center')
+        self.im_label = Label(preview_panel, borderwidth=0, justify='center')
 
-        editor_panel = Frame(editor_window, bg="black", width="300", height="540")
+        editor_panel = Frame(self.editor_window, bg="black", width="300", height="540")
         editor_panel.grid(row=0, column=1, sticky="nsew")
 
-        editor_window.columnconfigure(1, weight=1)
+        self.editor_window.columnconfigure(1, weight=1)
 
-        im = Image.open(self.target_pic_filename)
+        self.im = Image.open(self.target_pic_filename)
         max_height = 480
-        width_ratio = max_height / im.height
-        new_width = int(im.width * width_ratio)
-        self.resized_image = im.resize((new_width, max_height))
+        width_ratio = max_height / self.im.height
+        new_width = int(self.im.width * width_ratio)
+        self.resized_image = self.im.resize((new_width, max_height))
+
+        self.color_code = ((0, 0, 0), '#000000')
 
         photo = ImageTk.PhotoImage(self.resized_image)
 
-        im_label.image = photo  # Store a reference to the PhotoImage object
-        im_label.configure(image=photo)
+        self.im_label.image = photo  # Store a reference to the PhotoImage object
+        self.im_label.configure(image=photo)
         preview_panel.pack_propagate(False)
-        im_label.pack(expand=True)
+        self.im_label.pack(expand=True)
 
         editor_title = Label(editor_panel, text="Liquid Mark", font=("Blinker", 15, "bold"), background='black',
                              foreground="white")
@@ -71,24 +74,24 @@ class ImageEditor:
                                      background='black', foreground="white")
         watermark_text_label.grid(row=1, column=0, sticky="nsew")
 
-        watermark_text = Entry(editor_panel)
-        watermark_text.grid(row=1, column=1, sticky="w", padx=3, ipadx=15)
+        self.watermark_text = Entry(editor_panel)
+        self.watermark_text.grid(row=1, column=1, sticky="w", padx=3, ipadx=15)
 
         orient_label_x = Label(editor_panel, text="X Position:", font=("Blinker", 12), background="black",
                                foreground="white")
         orient_label_x.grid(row=2, column=0, pady=30, sticky="nsew")
 
-        x_scale = Scale(editor_panel, from_=0, to=photo.width(), orient=HORIZONTAL, background="black",
-                        foreground="white", relief="flat", borderwidth=0)
-        x_scale.grid(row=2, column=1, sticky="w", padx=3, ipadx=25)
+        self.x_scale = Scale(editor_panel, from_=0, to=photo.width(), orient=HORIZONTAL, background="black",
+                             foreground="white", relief="flat", borderwidth=0)
+        self.x_scale.grid(row=2, column=1, sticky="w", padx=3, ipadx=25)
 
         orient_label_y = Label(editor_panel, text="Y Position:", font=("Blinker", 12), background="black",
                                foreground="white")
         orient_label_y.grid(row=3, column=0, pady=10, sticky="nsew")
 
-        y_scale = Scale(editor_panel, from_=0, to=photo.height(), orient=HORIZONTAL, background="black",
-                        foreground="white", relief="flat", borderwidth=0)
-        y_scale.grid(row=3, column=1, sticky="w", padx=3, ipadx=25)
+        self.y_scale = Scale(editor_panel, from_=0, to=photo.height(), orient=HORIZONTAL, background="black",
+                             foreground="white", relief="flat", borderwidth=0)
+        self.y_scale.grid(row=3, column=1, sticky="w", padx=3, ipadx=25)
 
         rotation_label = Label(editor_panel, text="Rotation:", font=("Blinker", 12), background="black",
                                foreground="white")
@@ -98,31 +101,70 @@ class ImageEditor:
                                relief="flat", borderwidth=0)
         rotation_scale.grid(row=4, column=1, sticky="w", ipadx=25)
 
+        size_label = Label(editor_panel, text="Size:", font=("Blinker", 12), background="black",
+                               foreground="white")
+        size_label.grid(row=5, column=0, sticky="nsew", pady=30, padx=3)
+
+        self.size_scale = Scale(editor_panel, from_=0, to=self.resized_image.width, orient=HORIZONTAL, background="black", foreground="white",
+                               relief="flat", borderwidth=0)
+        self.size_scale.set(24)
+        self.size_scale.grid(row=5, column=1, sticky="w", ipadx=25)
+
         color_button = Button(editor_panel, text="Select a Color", command=self.choose_color, width=30,
                               font=("Blinker", 10, "bold"))
-        color_button.grid(row=5, column=0, columnspan=2)
+        color_button.grid(row=6, column=0, columnspan=2)
 
         opacity_label = Label(editor_panel, text="Opacity:", font=("Blinker", 12), background="black",
                               foreground="white")
-        opacity_label.grid(row=6, column=0, sticky="nsew", pady=30, padx=3)
+        opacity_label.grid(row=7, column=0, sticky="nsew", pady=30, padx=3)
 
-        opacity_scale = Scale(editor_panel, from_=0, to=100, orient=HORIZONTAL, background="black", foreground="white",
-                              relief="flat", borderwidth=0)
-        opacity_scale.set(100)
-        opacity_scale.grid(row=6, column=1, sticky="w", ipadx=25)
+        self.opacity_scale = Scale(editor_panel, from_=0, to=255, orient=HORIZONTAL, background="black",
+                                   foreground="white",
+                                   relief="flat", borderwidth=0)
+        self.opacity_scale.set(255)
+        self.opacity_scale.grid(row=7, column=1, sticky="w", ipadx=25)
 
         save_button = Button(editor_panel, text="Save Image", width=30, font=("Blinker", 10, "bold"),
                              command=self.save_image)
         save_button.grid(row=8, column=0, columnspan=2)
 
+        self.watermarking()
+        self.editor_window.after(100, self.continuous_watermarking)
+
     def choose_color(self):
         # variable to store hexadecimal code of color
-        color_code = colorchooser.askcolor(title="Choose color")
-        print(color_code)
+        self.color_code = colorchooser.askcolor(title="Choose color")
 
     def save_image(self):
         filetypes = (
             ('Custom Image', '*.jpg *.jpeg *.png'),
         )
         save_path = fd.asksaveasfilename(defaultextension='.png', filetypes=filetypes)
-        self.resized_image.save(fp=save_path, format="png")
+        output_image = ImageTk.getimage(self.watermarked_photo)
+
+        original_proc = output_image.resize((self.im.width, self.im.height))
+        original_proc.save(fp=save_path, format="png")
+
+    def continuous_watermarking(self):
+        # Call self.watermarking method
+        self.watermarking()
+
+        # Schedule self.watermarking to be called again after 100 milliseconds
+        self.editor_window.after(100, self.continuous_watermarking)
+
+    def watermarking(self):
+        text = self.watermark_text.get()
+        watermarked_image = self.resized_image.copy()
+
+        draw = ImageDraw.Draw(watermarked_image)
+
+        font_size = int(self.size_scale.get())
+        font = ImageFont.truetype(r"assets/Blinker/Blinker-Regular.ttf", font_size)
+
+        draw.text((self.x_scale.get(), self.y_scale.get()), text, font=font,
+                  fill=self.color_code[0] + (self.opacity_scale.get(),))
+
+        self.watermarked_photo = ImageTk.PhotoImage(watermarked_image)
+
+        self.im_label.configure(image=self.watermarked_photo)
+        self.im_label.image = self.watermarked_photo
