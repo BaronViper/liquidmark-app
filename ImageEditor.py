@@ -97,16 +97,17 @@ class ImageEditor:
                                foreground="white")
         rotation_label.grid(row=4, column=0, sticky="nsew", pady=30, padx=3)
 
-        rotation_scale = Scale(editor_panel, from_=0, to=360, orient=HORIZONTAL, background="black", foreground="white",
+        self.rotation_scale = Scale(editor_panel, from_=0, to=360, orient=HORIZONTAL, background="black", foreground="white",
                                relief="flat", borderwidth=0)
-        rotation_scale.grid(row=4, column=1, sticky="w", ipadx=25)
+        self.rotation_scale.grid(row=4, column=1, sticky="w", ipadx=25)
 
         size_label = Label(editor_panel, text="Size:", font=("Blinker", 12), background="black",
-                               foreground="white")
+                           foreground="white")
         size_label.grid(row=5, column=0, sticky="nsew", pady=30, padx=3)
 
-        self.size_scale = Scale(editor_panel, from_=0, to=self.resized_image.width, orient=HORIZONTAL, background="black", foreground="white",
-                               relief="flat", borderwidth=0)
+        self.size_scale = Scale(editor_panel, from_=0, to=self.resized_image.width, orient=HORIZONTAL,
+                                background="black", foreground="white",
+                                relief="flat", borderwidth=0)
         self.size_scale.set(24)
         self.size_scale.grid(row=5, column=1, sticky="w", ipadx=25)
 
@@ -156,15 +157,20 @@ class ImageEditor:
         text = self.watermark_text.get()
         watermarked_image = self.resized_image.copy()
 
-        draw = ImageDraw.Draw(watermarked_image)
+        txt = Image.new("RGBA", watermarked_image.size, (255, 255, 255, 0))
 
         font_size = int(self.size_scale.get())
-        font = ImageFont.truetype(r"assets/Blinker/Blinker-Regular.ttf", font_size)
 
+        font = ImageFont.truetype(r"assets/Blinker/Blinker-Regular.ttf", font_size)
+        draw = ImageDraw.Draw(txt)
         draw.text((self.x_scale.get(), self.y_scale.get()), text, font=font,
                   fill=self.color_code[0] + (self.opacity_scale.get(),))
 
-        self.watermarked_photo = ImageTk.PhotoImage(watermarked_image)
+        new_txt = txt.rotate(angle=self.rotation_scale.get())
+
+        combined = Image.alpha_composite(watermarked_image.convert("RGBA"), new_txt)
+        self.watermarked_photo = ImageTk.PhotoImage(combined)
 
         self.im_label.configure(image=self.watermarked_photo)
         self.im_label.image = self.watermarked_photo
+
