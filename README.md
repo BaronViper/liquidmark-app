@@ -4,9 +4,8 @@ Liquid Mark is a watermarking tool built with Python and the TKinter and PIL lib
 
 ## Features
 
-- Add text and image watermarks to photos and videos
-- Customize watermark font, size, color, and position
-- Watermark entire albums or individual files
+- Add text and image watermarks to photos
+- Customize watermark font, size, color, rotation, and position
 - Simple and intuitive user interface
 
 ## Requirements
